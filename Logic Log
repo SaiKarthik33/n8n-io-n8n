@@ -1,0 +1,7 @@
+Logic Log: Handling GitHub API Rate Limits
+Project: GitHub Lead Generation Automation (n8n)
+Approach: Authenticated API Requests via Credentials
+
+Explanation: To handle GitHub's API rate limits safely, I avoided making unauthenticated requests (which are strictly capped by GitHub at 60 requests per hour and can easily cause the workflow to fail). Instead, I configured the HTTP Request node to use n8n's built-in credential manager (connecting my GitHub account directly).
+
+By authenticating the node, n8n automatically injected the correct Authorization headers (OAuth/Bearer token) into the API call in the background. This upgraded my API rate limit to 5,000 requests per hour, ensuring the automation could instantly process incoming webhooks without needing to build artificial "Wait" or "Delay" nodes into the pipeline.
