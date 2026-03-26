@@ -1,0 +1,220 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "value": "https://github.com/SaiKarthik33",
+          "mode": "url"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "https://github.com/SaiKarthik33/n8n-io-n8n",
+          "mode": "url"
+        },
+        "events": [
+          "star"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.githubTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8227665e-c5a9-424d-9587-7faca82a8053",
+      "name": "Github Trigger",
+      "webhookId": "d51270dc-34bd-4bc4-a4be-1aa5d71bfae8",
+      "credentials": {
+        "githubApi": {
+          "id": "M1SrbaAcSROsb3Z9",
+          "name": "GitHub account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/users/{{ $json.body.repository.owner.login }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "57d66a43-08e3-43e1-8b6a-bb1deee0c7e1",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4c897a87-368a-493c-a13b-1b6f83476515",
+              "leftValue": "={{ $json.followers }}",
+              "rightValue": 100,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "522c0bce-c150-440e-8a20-ef5956606663",
+              "leftValue": "={{ $json.public_repos }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "fcddf0bb-fc2a-492c-801d-598532a54449",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        592,
+        144
+      ],
+      "id": "92746dce-9c76-4445-8bcd-892d7b9f085f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "pLn4mr0q6OiQiXSz",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a sales expert. Write a 1-sentence sales pitch on why we should reach out to this person based on their GitHub profile. Here is their Bio: I am an IT support professional and B.Tech computer science graduate interested in data analysis, and their Company is: Tech Solutions India.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        624,
+        -96
+      ],
+      "id": "e235c91a-26c5-4c21-9537-0eec396c10bf",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=🚀 New High-Value Lead Found!\n\n👤 Name: Sai Karthik\n📝 Bio: B.Tech Grad | IT Professional |\n\n---\n💡 AI Sales Pitch: This developer shows great consistency with 7 public repositories...",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        976,
+        -96
+      ],
+      "id": "9d35b417-d020-4cca-9b6c-de5a271ebf7a",
+      "name": "Discord",
+      "webhookId": "d67d7151-b60b-4c55-a2a3-e4cde75b6d60",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "T1T6qyOij9ROvfJY",
+          "name": "Discord Webhook account 10"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Github Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "9ba8a97e-2e07-40fe-86c7-c8ad8f93d47e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "330926ce756c67b55930545ebd121a3ad6815e10145ecee7f27fc87b8b6b2065"
+  },
+  "id": "sU7EOYxEYJVjOxBC",
+  "tags": []
+}
